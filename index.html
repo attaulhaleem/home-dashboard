@@ -4,14 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Plash Personal Dashboard - Ultimate</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=4">
 </head>
 <body>
 
   <div class="left-column">
     
-    <!-- 1. CLOCK & WORLD CLOCKS -->
+    <!-- 1. CLOCK, WEATHER, GREETING -->
     <div class="time-wrapper">
+      <div class="top-info">
+        <span id="greeting" class="greeting">Hello, Atta</span>
+        <div id="weather" class="weather-widget">
+          <span id="weather-icon">--</span>
+          <span id="weather-temp">--°C</span>
+        </div>
+      </div>
       <h1 id="time">00:00</h1>
       <p id="date">Loading...</p>
       <div class="world-clocks">
@@ -26,11 +33,25 @@
       <a id="hn-link" href="#" target="_blank" class="ticker-content">Loading news...</a>
     </div>
 
+    <!-- 2.5 QUICK LINKS -->
+    <div class="panel links-panel">
+      <a href="https://youtube.com" class="quick-link">▶ YouTube</a>
+      <a href="https://duolingo.com" class="quick-link">🦉 Duolingo</a>
+      <a href="https://github.com" class="quick-link">💻 GitHub</a>
+      <a href="https://mail.google.com" class="quick-link">✉️ Gmail</a>
+    </div>
+
     <div class="middle-row">
       <!-- 3. FOCUS TIMER & AUDIO -->
       <div class="panel focus-panel">
         <div class="section-title"><span>Focus Center</span></div>
-        <div class="timer-display" id="timer-display">25:00</div>
+        <div class="timer-container">
+          <svg class="timer-progress" viewBox="0 0 100 100" width="90" height="90" style="position: absolute; top: 0; left: 0;">
+            <circle class="timer-bg" cx="50" cy="50" r="45" fill="none"></circle>
+            <circle class="timer-fill" id="timer-fill" cx="50" cy="50" r="45" fill="none"></circle>
+          </svg>
+          <div class="timer-display" id="timer-display">25:00</div>
+        </div>
         <div class="timer-controls">
           <button class="btn" onclick="startTimer(25)">25m</button>
           <button class="btn" onclick="startTimer(5)">5m</button>
@@ -60,15 +81,27 @@
         <div class="cal-grid" id="cal-days"></div>
       </div>
 
-      <!-- 6. SCRATCHPAD -->
-      <div class="panel scratchpad-container">
-        <div class="section-title"><span>Scratchpad</span></div>
-        <textarea id="scratchpad" class="scratchpad" placeholder="// Type here..."></textarea>
+      <!-- 6. TASKS & SCRATCHPAD -->
+      <div class="panel multi-container">
+        <div class="tab-header">
+          <button class="tab-btn active" onclick="switchTab('tasks')" id="btn-tab-tasks">Tasks</button>
+          <button class="tab-btn" onclick="switchTab('scratchpad')" id="btn-tab-scratchpad">Notes</button>
+        </div>
+        <div id="tab-tasks" class="tab-content active">
+          <div class="tasks-input-container">
+            <input type="text" id="task-input" placeholder="Add a task..." onkeypress="handleTaskSubmit(event)">
+            <button onclick="addTask()" class="btn-add">+</button>
+          </div>
+          <ul id="task-list" class="task-list"></ul>
+        </div>
+        <div id="tab-scratchpad" class="tab-content">
+          <textarea id="scratchpad" class="scratchpad" placeholder="// Type here..."></textarea>
+        </div>
       </div>
     </div>
 
   </div>
 
-  <script src="script.js"></script>
+  <script src="script.js?v=3"></script>
 </body>
 </html>

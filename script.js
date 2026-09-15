@@ -1,6 +1,37 @@
+// --- 0. WEATHER ---
+async function fetchWeather() {
+  try {
+    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=48.6238&longitude=2.4296&current_weather=true');
+    const data = await res.json();
+    const temp = Math.round(data.current_weather.temperature);
+    const code = data.current_weather.weathercode;
+    
+    let icon = '☁️';
+    if (code === 0) icon = '☀️';
+    else if (code >= 1 && code <= 3) icon = '⛅';
+    else if (code >= 51 && code <= 67) icon = '🌧️';
+    else if (code >= 71 && code <= 77) icon = '❄️';
+    else if (code >= 95) icon = '⛈️';
+
+    document.getElementById('weather-icon').innerText = icon;
+    document.getElementById('weather-temp').innerText = `${temp}°C`;
+  } catch (e) {
+    console.log("Weather fetch failed", e);
+  }
+}
+fetchWeather();
+setInterval(fetchWeather, 1800000);
+
 // --- 1. CLOCKS ---
 function updateClocks() {
   const now = new Date();
+  
+  // Greeting
+  const hour = now.getHours();
+  let greeting = "Good evening";
+  if (hour < 12) greeting = "Good morning";
+  else if (hour < 18) greeting = "Good afternoon";
+  document.getElementById('greeting').innerText = `${greeting}, Atta`;
   // Main Clock
   document.getElementById('time').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   document.getElementById('date').innerText = now.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
@@ -44,17 +75,25 @@ setInterval(fetchHN, 1800000); // Fetch fresh news every 30 mins
 
 // --- 3. FOCUS TIMER ---
 let timerInt;
+let totalSeconds = 25 * 60;
 let secondsLeft = 25 * 60;
 
 function updateTimerDisplay() {
   const m = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
   const s = (secondsLeft % 60).toString().padStart(2, '0');
   document.getElementById('timer-display').innerText = `${m}:${s}`;
+  
+  const fillCircle = document.getElementById('timer-fill');
+  if (fillCircle) {
+    const fraction = secondsLeft / totalSeconds;
+    fillCircle.style.strokeDashoffset = 283 - (283 * fraction);
+  }
 }
 
 function startTimer(minutes) {
   clearInterval(timerInt);
-  secondsLeft = minutes * 60;
+  totalSeconds = minutes * 60;
+  secondsLeft = totalSeconds;
   updateTimerDisplay();
   
   timerInt = setInterval(() => {
@@ -70,7 +109,8 @@ function startTimer(minutes) {
 
 function stopTimer() {
   clearInterval(timerInt);
-  secondsLeft = 25 * 60;
+  totalSeconds = 25 * 60;
+  secondsLeft = totalSeconds;
   updateTimerDisplay();
 }
 
@@ -178,7 +218,64 @@ function buildCalendar() {
 }
 buildCalendar();
 
-// --- 7. SCRATCHPAD ---
+// --- 7. TABS & TASKS & SCRATCHPAD ---
+window.switchTab = function(tabName) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  
+  document.getElementById(`btn-tab-${tabName}`).classList.add('active');
+  document.getElementById(`tab-${tabName}`).classList.add('active');
+};
+
+let tasks = JSON.parse(localStorage.getItem('plash_tasks')) || [];
+
+function saveTasks() {
+  localStorage.setItem('plash_tasks', JSON.stringify(tasks));
+  renderTasks();
+}
+
+function renderTasks() {
+  const list = document.getElementById('task-list');
+  list.innerHTML = '';
+  tasks.forEach((t, i) => {
+    const li = document.createElement('li');
+    li.className = `task-item ${t.done ? 'completed' : ''}`;
+    li.innerHTML = `
+      <input type="checkbox" class="task-checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask(${i})">
+      <span>${t.text}</span>
+      <button class="task-delete" onclick="deleteTask(${i})">✕</button>
+    `;
+    list.appendChild(li);
+  });
+}
+
+window.addTask = function() {
+  const input = document.getElementById('task-input');
+  const text = input.value.trim();
+  if (text) {
+    tasks.push({ text, done: false });
+    input.value = '';
+    saveTasks();
+  }
+};
+
+window.handleTaskSubmit = function(e) {
+  if (e.key === 'Enter') addTask();
+};
+
+window.toggleTask = function(index) {
+  tasks[index].done = !tasks[index].done;
+  saveTasks();
+};
+
+window.deleteTask = function(index) {
+  tasks.splice(index, 1);
+  saveTasks();
+};
+
+renderTasks();
+
+// Scratchpad
 const pad = document.getElementById('scratchpad');
 if (pad) {
   pad.value = localStorage.getItem('plash_scratchpad') || '';
