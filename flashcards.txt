@@ -1,0 +1,43 @@
+#separator:tab
+#html:false
+se maquiller	put on makeup
+bonne humeur	good mood
+la promenade	walk
+le calme	calm
+en plus	in addition
+dodo	sleep
+se garer	to park
+se reposer	to rest
+s'installer	to settle in
+s'énerver	get angry
+se coiffer	do hair
+l'entraîneur	coach
+s'habiller	get dressed
+la sieste	nap
+gênant	embarrassing
+le daron	dad
+la daronne	mom
+la vanne	joke
+casser	break
+Ça me casse les couilles.	It breaks my balls / It annoys me
+fouiller	to search
+grenier	attic
+rez-de-chaussée	ground floor
+la cravate	tie
+la boutique	shop / store
+liste	list
+assis	seated
+aisle	rayon
+ennuyeux	boring
+en face de	in front of / across from
+la casquette	cap
+le casque	headphones
+les écouteurs	earphones
+le foulard	scarf
+la moto	motorcycle
+la barbe	beard
+les pâtes	pasta
+dans le cadre	in the framework / within the scope
+pris en charge	taken in charge / taken care of
+brusque	abrupt
+lourde	heavy

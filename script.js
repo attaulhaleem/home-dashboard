@@ -1,3 +1,23 @@
+// --- WEATHER ICONS (hand-drawn, monochrome, currentColor) ---
+const WEATHER_ICONS = {
+  sun: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="4.3"/><rect x="11" y="1" width="2" height="4" rx="1"/><rect x="11" y="19" width="2" height="4" rx="1"/><rect x="1" y="11" width="4" height="2" rx="1"/><rect x="19" y="11" width="4" height="2" rx="1"/></svg>',
+  cloudSun: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="8" cy="8" r="3.2"/><rect x="7" y="1.5" width="2" height="3" rx="1"/><rect x="1.5" y="7" width="3" height="2" rx="1"/><g transform="translate(2,3)"><circle cx="9" cy="13" r="3.6"/><circle cx="13.5" cy="11" r="4.4"/><circle cx="17" cy="13.5" r="3"/><rect x="7" y="12.8" width="12" height="5.4" rx="2.7"/></g></svg>',
+  cloud: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="8" cy="13" r="4"/><circle cx="13" cy="10.5" r="5"/><circle cx="17" cy="13.5" r="3.3"/><rect x="6" y="12.5" width="13" height="6" rx="3"/></svg>',
+  rain: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="8" cy="8.5" r="3.4"/><circle cx="13" cy="6.5" r="4.2"/><circle cx="16.5" cy="9" r="3"/><rect x="6" y="8" width="13" height="5" rx="2.5"/><rect x="7.5" y="16" width="1.8" height="4.5" rx="0.9" transform="rotate(15 8.4 18.25)"/><rect x="12" y="16.5" width="1.8" height="4.5" rx="0.9" transform="rotate(15 12.9 18.75)"/><rect x="16" y="16" width="1.8" height="4.5" rx="0.9" transform="rotate(15 16.9 18.25)"/></svg>',
+  snow: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="8" cy="8.5" r="3.4"/><circle cx="13" cy="6.5" r="4.2"/><circle cx="16.5" cy="9" r="3"/><rect x="6" y="8" width="13" height="5" rx="2.5"/><circle cx="8.5" cy="18" r="1.3"/><circle cx="13" cy="19.5" r="1.3"/><circle cx="17" cy="18" r="1.3"/></svg>',
+  storm: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="8" cy="7.5" r="3.1"/><circle cx="13" cy="5.8" r="3.8"/><circle cx="16.3" cy="8" r="2.7"/><rect x="6" y="7.2" width="13" height="4.6" rx="2.3"/><polygon points="13.5,12 9,18.5 12.3,18.5 10.8,23 16.5,15.5 13,15.5"/></svg>'
+};
+
+function weatherIconFor(code) {
+  if (code === 0) return WEATHER_ICONS.sun;
+  if (code >= 1 && code <= 3) return WEATHER_ICONS.cloudSun;
+  if (code >= 45 && code <= 48) return WEATHER_ICONS.cloud;
+  if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return WEATHER_ICONS.rain;
+  if (code >= 71 && code <= 77) return WEATHER_ICONS.snow;
+  if (code >= 95) return WEATHER_ICONS.storm;
+  return WEATHER_ICONS.cloud;
+}
+
 // --- 0. WEATHER ---
 async function fetchWeather() {
   try {
@@ -5,16 +25,9 @@ async function fetchWeather() {
     const data = await res.json();
     const temp = Math.round(data.current_weather.temperature);
     const code = data.current_weather.weathercode;
-    
-    let icon = '☁️';
-    if (code === 0) icon = '☀️';
-    else if (code >= 1 && code <= 3) icon = '⛅';
-    else if (code >= 51 && code <= 67) icon = '🌧️';
-    else if (code >= 71 && code <= 77) icon = '❄️';
-    else if (code >= 95) icon = '⛈️';
 
-    document.getElementById('weather-icon').innerText = icon;
-    document.getElementById('weather-temp').innerText = `${temp}°C`;
+    document.getElementById('weather-icon').innerHTML = weatherIconFor(code);
+    document.getElementById('weather-temp').innerText = `${temp}°`;
   } catch (e) {
     console.log("Weather fetch failed", e);
   }
@@ -25,7 +38,7 @@ setInterval(fetchWeather, 1800000);
 // --- 1. CLOCKS ---
 function updateClocks() {
   const now = new Date();
-  
+
   // Greeting
   const hour = now.getHours();
   let greeting = "Good evening";
@@ -35,7 +48,7 @@ function updateClocks() {
   // Main Clock
   document.getElementById('time').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   document.getElementById('date').innerText = now.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
-  
+
   // World Clocks updated for London and Lahore
   const options = { hour: '2-digit', minute: '2-digit', hour12: false };
   document.getElementById('time-lon').innerText = new Intl.DateTimeFormat('en-US', { ...options, timeZone: 'Europe/London' }).format(now);
@@ -51,8 +64,8 @@ async function fetchHN() {
   try {
     const res = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json');
     const ids = (await res.json()).slice(0, 10); // Get top 10
-    
-    hnStories = await Promise.all(ids.map(id => 
+
+    hnStories = await Promise.all(ids.map(id =>
       fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then(r => r.json())
     ));
     rotateHN();
@@ -61,79 +74,36 @@ async function fetchHN() {
   }
 }
 function rotateHN() {
-  if(hnStories.length === 0) return;
+  if (hnStories.length === 0) return;
   const story = hnStories[hnIndex];
   const linkEl = document.getElementById('hn-link');
   linkEl.innerText = story.title;
   linkEl.href = story.url || `https://news.ycombinator.com/item?id=${story.id}`;
-  
+
   hnIndex = (hnIndex + 1) % hnStories.length;
 }
 fetchHN();
 setInterval(rotateHN, 8000); // Rotate every 8 seconds
 setInterval(fetchHN, 1800000); // Fetch fresh news every 30 mins
 
-// --- 3. FOCUS TIMER ---
-let timerInt;
-let totalSeconds = 25 * 60;
-let secondsLeft = 25 * 60;
-
-function updateTimerDisplay() {
-  const m = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
-  const s = (secondsLeft % 60).toString().padStart(2, '0');
-  document.getElementById('timer-display').innerText = `${m}:${s}`;
-  
-  const fillCircle = document.getElementById('timer-fill');
-  if (fillCircle) {
-    const fraction = secondsLeft / totalSeconds;
-    fillCircle.style.strokeDashoffset = 283 - (283 * fraction);
-  }
-}
-
-function startTimer(minutes) {
-  clearInterval(timerInt);
-  totalSeconds = minutes * 60;
-  secondsLeft = totalSeconds;
-  updateTimerDisplay();
-  
-  timerInt = setInterval(() => {
-    secondsLeft--;
-    updateTimerDisplay();
-    if (secondsLeft <= 0) {
-      clearInterval(timerInt);
-      const audio = new Audio('https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg');
-      audio.play().catch(() => console.log('Audio playback prevented by browser'));
-    }
-  }, 1000);
-}
-
-function stopTimer() {
-  clearInterval(timerInt);
-  totalSeconds = 25 * 60;
-  secondsLeft = totalSeconds;
-  updateTimerDisplay();
-}
-
-// --- 4. AMBIENT AUDIO ---
+// --- 3. AMBIENT AUDIO (timer removed — use Tomobar; transport removed — use boringnotch) ---
 const player = document.getElementById('ambient-player');
 let currentAudio = '';
 
 const audioDetails = {
-  'rain': { title: 'Heavy Rain', artist: 'Focus Sounds' },
-  'cafe': { title: 'Coffee Shop', artist: 'Focus Sounds' },
-  'forest': { title: 'Woodland Stream', artist: 'Focus Sounds' }
+  'rain': 'Heavy Rain',
+  'cafe': 'Coffee Shop',
+  'forest': 'Woodland Stream'
 };
 
 function toggleAudio(id, url, volumeLevel) {
   const btnRain = document.getElementById('btn-rain');
   const btnCafe = document.getElementById('btn-cafe');
   const btnForest = document.getElementById('btn-forest');
-  
-  const musicPanel = document.querySelector('.music-panel');
+
+  const ambientPanel = document.querySelector('.ambient-panel');
   const trackName = document.getElementById('track-name');
-  const artistName = document.getElementById('artist-name');
-  const playPauseBtn = document.getElementById('play-pause-btn');
-  
+
   // Reset all buttons
   btnRain.classList.remove('playing');
   btnCafe.classList.remove('playing');
@@ -142,134 +112,101 @@ function toggleAudio(id, url, volumeLevel) {
   if (currentAudio === id) {
     player.pause();
     currentAudio = '';
-    
-    // Stop visualizer and update text
-    if (musicPanel) {
-      musicPanel.classList.remove('playing');
-      trackName.innerText = 'Not Playing';
-      artistName.innerText = 'Select ambient sound';
-      if (playPauseBtn) playPauseBtn.innerText = '▶';
+
+    if (ambientPanel) {
+      ambientPanel.classList.remove('playing');
+      trackName.innerText = 'Not playing';
     }
   } else {
     player.src = url;
-    player.volume = volumeLevel; 
+    player.volume = volumeLevel;
     player.play().catch(() => console.log('Audio playback prevented by browser'));
     document.getElementById(`btn-${id}`).classList.add('playing');
     currentAudio = id;
-    
-    // Start visualizer and update text
-    if (musicPanel) {
-      musicPanel.classList.add('playing');
-      trackName.innerText = audioDetails[id].title;
-      artistName.innerText = audioDetails[id].artist;
-      if (playPauseBtn) playPauseBtn.innerText = '⏸';
+
+    if (ambientPanel) {
+      ambientPanel.classList.add('playing');
+      trackName.innerText = audioDetails[id];
     }
   }
 }
-
-// Make functions available globally for inline onclick handlers
-window.startTimer = startTimer;
-window.stopTimer = stopTimer;
 window.toggleAudio = toggleAudio;
 
-
-// --- 6. MINI CALENDAR ---
-function buildCalendar() {
-  const now = new Date();
-  const currentMonth = now.getMonth();
-  const currentYear = now.getFullYear();
-  const today = now.getDate();
-
-  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  document.getElementById('cal-month-title').innerText = `${monthNames[currentMonth]} ${currentYear}`;
-
-  const calGrid = document.getElementById('cal-days');
-  calGrid.innerHTML = '';
-
-  const dayHeaders = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
-  dayHeaders.forEach(d => {
-    const span = document.createElement('div');
-    span.className = 'cal-header';
-    span.innerText = d;
-    calGrid.appendChild(span);
-  });
-
-  let firstDay = new Date(currentYear, currentMonth, 1).getDay();
-  firstDay = (firstDay === 0) ? 6 : firstDay - 1;
-
-  const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-  for (let i = 0; i < firstDay; i++) {
-    calGrid.appendChild(document.createElement('div'));
-  }
-
-  for (let d = 1; d <= totalDays; d++) {
-    const dayDiv = document.createElement('div');
-    dayDiv.className = 'cal-day' + (d === today ? ' today' : '');
-    dayDiv.innerText = d;
-    calGrid.appendChild(dayDiv);
-  }
+// --- 4. TOAST (shared by Reminders + Notes confirmations) ---
+let toastTimer;
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  clearTimeout(toastTimer);
+  toast.textContent = msg;
+  toast.classList.add('show');
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
 }
-buildCalendar();
 
-// --- 7. TABS & TASKS & SCRATCHPAD ---
-window.switchTab = function(tabName) {
+// --- 5. TASKS (Standalone Local Storage) ---
+function getLocalTasks() {
+  const saved = localStorage.getItem('plash_tasks');
+  return saved ? JSON.parse(saved) : [];
+}
+
+function saveLocalTasks(tasks) {
+  localStorage.setItem('plash_tasks', JSON.stringify(tasks));
+}
+
+function renderTasks() {
+  const ul = document.getElementById('task-list');
+  ul.innerHTML = '';
+  const tasks = getLocalTasks();
+  tasks.forEach((task, index) => {
+    const li = document.createElement('li');
+    li.className = 'task-item';
+    li.textContent = task;
+    li.onclick = () => {
+      removeTask(index);
+    };
+    ul.appendChild(li);
+  });
+}
+
+function removeTask(index) {
+  const tasks = getLocalTasks();
+  tasks.splice(index, 1);
+  saveLocalTasks(tasks);
+  renderTasks();
+}
+
+window.addTask = function () {
+  const input = document.getElementById('task-input');
+  const text = input.value.trim();
+  if (!text) return;
+  
+  const tasks = getLocalTasks();
+  tasks.push(text);
+  saveLocalTasks(tasks);
+  renderTasks();
+  
+  input.value = '';
+};
+
+// Initial render
+renderTasks();
+
+window.handleTaskSubmit = function (e) {
+  if (e.key === 'Enter') addTask();
+};
+
+// Notes functionality uses standalone localStorage logic below
+
+// --- 6. TABS ---
+window.switchTab = function (tabName) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  
+
   document.getElementById(`btn-tab-${tabName}`).classList.add('active');
   document.getElementById(`tab-${tabName}`).classList.add('active');
 };
 
-let tasks = JSON.parse(localStorage.getItem('plash_tasks')) || [];
-
-function saveTasks() {
-  localStorage.setItem('plash_tasks', JSON.stringify(tasks));
-  renderTasks();
-}
-
-function renderTasks() {
-  const list = document.getElementById('task-list');
-  list.innerHTML = '';
-  tasks.forEach((t, i) => {
-    const li = document.createElement('li');
-    li.className = `task-item ${t.done ? 'completed' : ''}`;
-    li.innerHTML = `
-      <input type="checkbox" class="task-checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask(${i})">
-      <span>${t.text}</span>
-      <button class="task-delete" onclick="deleteTask(${i})">✕</button>
-    `;
-    list.appendChild(li);
-  });
-}
-
-window.addTask = function() {
-  const input = document.getElementById('task-input');
-  const text = input.value.trim();
-  if (text) {
-    tasks.push({ text, done: false });
-    input.value = '';
-    saveTasks();
-  }
-};
-
-window.handleTaskSubmit = function(e) {
-  if (e.key === 'Enter') addTask();
-};
-
-window.toggleTask = function(index) {
-  tasks[index].done = !tasks[index].done;
-  saveTasks();
-};
-
-window.deleteTask = function(index) {
-  tasks.splice(index, 1);
-  saveTasks();
-};
-
-renderTasks();
-
-// Scratchpad
+// Scratchpad stays as a local draft until it's sent to Notes
 const pad = document.getElementById('scratchpad');
 if (pad) {
   pad.value = localStorage.getItem('plash_scratchpad') || '';
@@ -277,3 +214,72 @@ if (pad) {
     localStorage.setItem('plash_scratchpad', pad.value);
   });
 }
+
+// --- 7. FLASHCARDS ---
+let flashcards = [];
+let currentCardIndex = 0;
+let isFlipped = false;
+
+async function loadFlashcards() {
+  try {
+    if (typeof windowFlashcards !== 'undefined' && windowFlashcards.length > 0) {
+      flashcards = [...windowFlashcards];
+      // Shuffle the flashcards for randomness each reload
+      flashcards = flashcards.sort(() => Math.random() - 0.5);
+      updateFlashcardUI();
+    } else {
+      document.getElementById('french-word').innerText = "No cards found";
+    }
+  } catch (e) {
+    console.error("Failed to load flashcards", e);
+    document.getElementById('french-word').innerText = "Error loading";
+  }
+}
+
+function updateFlashcardUI() {
+  if (flashcards.length === 0) return;
+  const card = flashcards[currentCardIndex];
+  
+  const cardEl = document.getElementById('french-card');
+  cardEl.classList.remove('flipped');
+  isFlipped = false;
+  
+  document.getElementById('french-word').innerText = card.front;
+  document.getElementById('french-translation').innerText = card.back;
+}
+
+window.frenchFlip = function() {
+  if (flashcards.length === 0) return;
+  const cardEl = document.getElementById('french-card');
+  if (isFlipped) {
+    cardEl.classList.remove('flipped');
+  } else {
+    cardEl.classList.add('flipped');
+  }
+  isFlipped = !isFlipped;
+};
+
+window.frenchNext = function(e) {
+  if (e) e.stopPropagation();
+  if (flashcards.length === 0) return;
+  
+  let nextIndex;
+  if (flashcards.length > 1) {
+    do {
+      nextIndex = Math.floor(Math.random() * flashcards.length);
+    } while (nextIndex === currentCardIndex);
+  } else {
+    nextIndex = 0;
+  }
+  
+  currentCardIndex = nextIndex;
+  updateFlashcardUI();
+};
+
+window.frenchToggleKnown = function(e) {
+  e.stopPropagation();
+  showToast("Not synced to Anki");
+};
+
+// Initialize flashcards
+loadFlashcards();
