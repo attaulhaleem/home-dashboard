@@ -118,10 +118,21 @@ function stopTimer() {
 const player = document.getElementById('ambient-player');
 let currentAudio = '';
 
+const audioDetails = {
+  'rain': { title: 'Heavy Rain', artist: 'Focus Sounds' },
+  'cafe': { title: 'Coffee Shop', artist: 'Focus Sounds' },
+  'forest': { title: 'Woodland Stream', artist: 'Focus Sounds' }
+};
+
 function toggleAudio(id, url, volumeLevel) {
   const btnRain = document.getElementById('btn-rain');
   const btnCafe = document.getElementById('btn-cafe');
   const btnForest = document.getElementById('btn-forest');
+  
+  const musicPanel = document.querySelector('.music-panel');
+  const trackName = document.getElementById('track-name');
+  const artistName = document.getElementById('artist-name');
+  const playPauseBtn = document.getElementById('play-pause-btn');
   
   // Reset all buttons
   btnRain.classList.remove('playing');
@@ -131,12 +142,28 @@ function toggleAudio(id, url, volumeLevel) {
   if (currentAudio === id) {
     player.pause();
     currentAudio = '';
+    
+    // Stop visualizer and update text
+    if (musicPanel) {
+      musicPanel.classList.remove('playing');
+      trackName.innerText = 'Not Playing';
+      artistName.innerText = 'Select ambient sound';
+      if (playPauseBtn) playPauseBtn.innerText = '▶';
+    }
   } else {
     player.src = url;
     player.volume = volumeLevel; 
     player.play().catch(() => console.log('Audio playback prevented by browser'));
     document.getElementById(`btn-${id}`).classList.add('playing');
     currentAudio = id;
+    
+    // Start visualizer and update text
+    if (musicPanel) {
+      musicPanel.classList.add('playing');
+      trackName.innerText = audioDetails[id].title;
+      artistName.innerText = audioDetails[id].artist;
+      if (playPauseBtn) playPauseBtn.innerText = '⏸';
+    }
   }
 }
 
@@ -145,39 +172,6 @@ window.startTimer = startTimer;
 window.stopTimer = stopTimer;
 window.toggleAudio = toggleAudio;
 
-// --- 5. HABIT TRACKER ---
-function buildHabits() {
-  const grid = document.getElementById('habit-grid');
-  let habits = JSON.parse(localStorage.getItem('plash_habits')) || {};
-  const todayStr = new Date().toISOString().split('T')[0];
-  
-  // Generate last 30 days
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().split('T')[0];
-    
-    const cell = document.createElement('div');
-    cell.className = 'habit-cell';
-    cell.title = dateStr;
-    
-    if (habits[dateStr]) cell.classList.add('done');
-    
-    // Only allow clicking today's cell to prevent cheating!
-    if (i === 0) {
-      cell.onclick = () => {
-        habits[dateStr] = !habits[dateStr];
-        localStorage.setItem('plash_habits', JSON.stringify(habits));
-        cell.classList.toggle('done');
-      };
-    } else {
-      cell.style.cursor = 'default';
-    }
-    
-    grid.appendChild(cell);
-  }
-}
-buildHabits();
 
 // --- 6. MINI CALENDAR ---
 function buildCalendar() {

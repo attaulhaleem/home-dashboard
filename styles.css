@@ -175,11 +175,12 @@ button, input, textarea {
   transform: translateY(-2px);
 }
 
-/* --- MIDDLE ROW (Focus + Habits) --- */
-.middle-row {
-  display: flex;
+/* --- DASHBOARD GRID --- */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 240px;
   gap: 16px;
-  min-height: 180px;
+  min-height: 400px;
 }
 
 /* Focus & Audio */
@@ -252,32 +253,100 @@ button, input, textarea {
 }
 .audio-btn:hover, .audio-btn.playing { opacity: 1; }
 
-/* Habits Grid */
-.habits-panel { width: 240px; }
-.habit-grid {
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  gap: 4px;
-  margin-top: 8px;
-}
-.habit-cell {
-  aspect-ratio: 1;
-  background: rgba(255,255,255,0.05);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.habit-cell:hover { background: rgba(255,255,255,0.15); }
-.habit-cell.done { background: var(--accent); }
-
-/* --- BOTTOM ROW (Calendar + Scratchpad) --- */
-.bottom-row {
+/* --- MUSIC WIDGET (Visualizer) --- */
+.music-panel { 
+  width: 100%; 
   display: flex;
-  gap: 16px;
-  min-height: 220px;
+  flex-direction: column;
+}
+.music-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  justify-content: center;
+  gap: 12px;
+  padding-top: 10px;
+}
+.visualizer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6px;
+  height: 40px;
+  margin-bottom: 8px;
+}
+.visualizer .bar {
+  width: 6px;
+  background-color: var(--accent);
+  border-radius: 3px;
+  box-shadow: 0 0 10px var(--accent);
+  transform: scaleY(0.1);
+  transform-origin: bottom;
+  transition: transform 0.3s ease;
+}
+.music-panel.playing .visualizer .bar {
+  animation: visualize 1.2s ease-in-out infinite alternate;
+}
+.visualizer .bar:nth-child(1) { height: 60%; animation-delay: -0.2s; }
+.visualizer .bar:nth-child(2) { height: 100%; animation-delay: -0.4s; }
+.visualizer .bar:nth-child(3) { height: 80%; animation-delay: -0.1s; }
+.visualizer .bar:nth-child(4) { height: 50%; animation-delay: -0.5s; }
+.visualizer .bar:nth-child(5) { height: 90%; animation-delay: -0.3s; }
+
+@keyframes visualize {
+  0% { transform: scaleY(0.3); opacity: 0.6; }
+  100% { transform: scaleY(1); opacity: 1; }
 }
 
-.cal-container { width: 230px; }
+.track-info {
+  text-align: center;
+  margin-bottom: 8px;
+}
+.track-name {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--text-main);
+  margin-bottom: 2px;
+}
+.artist-name {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.progress-bar-container {
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.progress-bar-fill {
+  width: 35%;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+}
+.music-controls {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  align-items: center;
+}
+.music-btn {
+  background: none;
+  border: none;
+  color: var(--text-main);
+  font-size: 1rem;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.music-btn:hover { opacity: 1; transform: scale(1.1); }
+.music-btn.play-btn { font-size: 1.5rem; }
+
+/* --- CALENDAR & TASKS (Grid Placement) --- */
+.cal-container { width: 100%; }
 .cal-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Plash Personal Dashboard - Ultimate</title>
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
 
@@ -41,7 +41,7 @@
       <a href="https://mail.google.com" class="quick-link">✉️ Gmail</a>
     </div>
 
-    <div class="middle-row">
+    <div class="dashboard-grid">
       <!-- 3. FOCUS TIMER & AUDIO -->
       <div class="panel focus-panel">
         <div class="section-title"><span>Focus Center</span></div>
@@ -67,21 +67,33 @@
         <audio id="ambient-player" loop></audio>
       </div>
         
-      <!-- 4. HABIT TRACKER -->
-      <div class="panel habits-panel">
-        <div class="section-title"><span>30-Day Habit</span></div>
-        <div class="habit-grid" id="habit-grid"></div>
+      <!-- 4. MUSIC WIDGET (Replaces Habit Tracker) -->
+      <div class="panel music-panel">
+        <div class="section-title"><span>Now Playing</span></div>
+        <div class="music-content">
+          <div class="visualizer">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+          <div class="track-info">
+            <div class="track-name" id="track-name">Not Playing</div>
+            <div class="artist-name" id="artist-name">Select ambient sound</div>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill"></div>
+          </div>
+          <div class="music-controls">
+            <button class="music-btn">⏮</button>
+            <button class="music-btn play-btn" id="play-pause-btn">▶</button>
+            <button class="music-btn">⏭</button>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div class="bottom-row">
-      <!-- 5. MINI CALENDAR -->
-      <div class="panel cal-container">
-        <div class="section-title"><span id="cal-month-title">Calendar</span></div>
-        <div class="cal-grid" id="cal-days"></div>
-      </div>
-
-      <!-- 6. TASKS & SCRATCHPAD -->
+      <!-- 5. TASKS & SCRATCHPAD -->
       <div class="panel multi-container">
         <div class="tab-header">
           <button class="tab-btn active" onclick="switchTab('tasks')" id="btn-tab-tasks">Tasks</button>
@@ -98,10 +110,16 @@
           <textarea id="scratchpad" class="scratchpad" placeholder="// Type here..."></textarea>
         </div>
       </div>
+
+      <!-- 6. MINI CALENDAR -->
+      <div class="panel cal-container">
+        <div class="section-title"><span id="cal-month-title">Calendar</span></div>
+        <div class="cal-grid" id="cal-days"></div>
+      </div>
     </div>
 
   </div>
 
-  <script src="script.js?v=3"></script>
+  <script src="script.js?v=5"></script>
 </body>
 </html>
