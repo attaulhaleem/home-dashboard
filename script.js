@@ -86,49 +86,44 @@ fetchHN();
 setInterval(rotateHN, 8000); // Rotate every 8 seconds
 setInterval(fetchHN, 1800000); // Fetch fresh news every 30 mins
 
-// --- 3. AMBIENT AUDIO (timer removed — use Tomobar; transport removed — use boringnotch) ---
-const player = document.getElementById('ambient-player');
-let currentAudio = '';
+// --- 3. AMBIENT AUDIO ---
+let currentAudioId = null;
 
-const audioDetails = {
-  'rain': 'Heavy Rain',
-  'cafe': 'Coffee Shop',
-  'forest': 'Woodland Stream'
-};
+function updateAudioIcons() {
+  // Reset all audio buttons
+  document.querySelectorAll('.audio-btn').forEach(btn => {
+    btn.classList.remove('playing');
+    btn.style.color = '';
+  });
+  // Highlight active
+  if (currentAudioId) {
+    const activeBtn = document.getElementById('btn-' + currentAudioId);
+    if (activeBtn) {
+      activeBtn.classList.add('playing');
+      activeBtn.style.color = 'var(--accent)';
+    }
+  }
+}
 
 function toggleAudio(id, url, volumeLevel) {
-  const btnRain = document.getElementById('btn-rain');
-  const btnCafe = document.getElementById('btn-cafe');
-  const btnForest = document.getElementById('btn-forest');
-
-  const ambientPanel = document.querySelector('.ambient-panel');
+  const player = document.getElementById('ambient-player');
   const trackName = document.getElementById('track-name');
+  const ambientPanel = document.querySelector('.ambient-panel');
 
-  // Reset all buttons
-  btnRain.classList.remove('playing');
-  btnCafe.classList.remove('playing');
-  btnForest.classList.remove('playing');
-
-  if (currentAudio === id) {
+  if (currentAudioId === id) {
     player.pause();
-    currentAudio = '';
-
-    if (ambientPanel) {
-      ambientPanel.classList.remove('playing');
-      trackName.innerText = 'Not playing';
-    }
+    currentAudioId = null;
+    if (trackName) trackName.innerText = 'Not playing';
+    if (ambientPanel) ambientPanel.classList.remove('playing');
   } else {
     player.src = url;
     player.volume = volumeLevel;
-    player.play().catch(() => console.log('Audio playback prevented by browser'));
-    document.getElementById(`btn-${id}`).classList.add('playing');
-    currentAudio = id;
-
-    if (ambientPanel) {
-      ambientPanel.classList.add('playing');
-      trackName.innerText = audioDetails[id];
-    }
+    player.play().catch(e => console.log('Audio playback prevented:', e));
+    currentAudioId = id;
+    if (trackName) trackName.innerText = id.charAt(0).toUpperCase() + id.slice(1);
+    if (ambientPanel) ambientPanel.classList.add('playing');
   }
+  updateAudioIcons();
 }
 window.toggleAudio = toggleAudio;
 
@@ -157,22 +152,58 @@ function renderTasks() {
   const ul = document.getElementById('task-list');
   ul.innerHTML = '';
   const tasks = getLocalTasks();
-  tasks.forEach((task, index) => {
+  
+  if (tasks.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+      <span>All caught up!</span>
+    `;
+    ul.appendChild(empty);
+    return;
+  }
+  
+  tasks.forEach((task) => {
     const li = document.createElement('li');
     li.className = 'task-item';
-    li.textContent = task;
+    
+    const checkBtn = document.createElement('div');
+    checkBtn.className = 'task-check';
+    checkBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+    
+    const textSpan = document.createElement('span');
+    textSpan.className = 'task-text';
+    textSpan.textContent = task;
+    
+    li.appendChild(checkBtn);
+    li.appendChild(textSpan);
+    
     li.onclick = () => {
-      removeTask(index);
+      // Lock height and hide overflow for smooth transition
+      li.style.height = li.offsetHeight + 'px';
+      li.style.overflow = 'hidden';
+      // Force reflow
+      void li.offsetWidth;
+      
+      li.classList.add('completed');
+      setTimeout(() => {
+        removeTask(task);
+      }, 400); // Wait for animation
     };
+    
     ul.appendChild(li);
   });
 }
 
-function removeTask(index) {
+function removeTask(taskString) {
   const tasks = getLocalTasks();
-  tasks.splice(index, 1);
-  saveLocalTasks(tasks);
-  renderTasks();
+  const index = tasks.indexOf(taskString);
+  if (index > -1) {
+    tasks.splice(index, 1);
+    saveLocalTasks(tasks);
+    renderTasks();
+  }
 }
 
 window.addTask = function () {
