@@ -76,10 +76,6 @@ const windowFlashcards = [
     "back": "break"
   },
   {
-    "front": "Ça me casse les couilles.",
-    "back": "It breaks my balls / It annoys me"
-  },
-  {
     "front": "fouiller",
     "back": "to search"
   },

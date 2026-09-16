@@ -36,6 +36,10 @@ fetchWeather();
 setInterval(fetchWeather, 1800000);
 
 // --- 1. CLOCKS ---
+let lastTimeStr = '';
+let lastLonStr = '';
+let lastLheStr = '';
+
 function updateClocks() {
   const now = new Date();
 
@@ -44,18 +48,43 @@ function updateClocks() {
   let greeting = "Good evening";
   if (hour < 12) greeting = "Good morning";
   else if (hour < 18) greeting = "Good afternoon";
-  document.getElementById('greeting').innerText = `${greeting}, Atta`;
+  
+  const greetingEl = document.getElementById('greeting');
+  const greetingText = `${greeting}, Atta`;
+  if (greetingEl.innerText !== greetingText) greetingEl.innerText = greetingText;
+
   // Main Clock
-  document.getElementById('time').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  document.getElementById('date').innerText = now.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
+  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const dateStr = now.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
+  
+  if (timeStr !== lastTimeStr) {
+    document.getElementById('time').innerText = timeStr;
+    document.getElementById('date').innerText = dateStr;
+    lastTimeStr = timeStr;
+  }
 
   // World Clocks updated for London and Lahore
   const options = { hour: '2-digit', minute: '2-digit', hour12: false };
-  document.getElementById('time-lon').innerText = new Intl.DateTimeFormat('en-US', { ...options, timeZone: 'Europe/London' }).format(now);
-  document.getElementById('time-lhe').innerText = new Intl.DateTimeFormat('en-US', { ...options, timeZone: 'Asia/Karachi' }).format(now);
+  const lonStr = new Intl.DateTimeFormat('en-US', { ...options, timeZone: 'Europe/London' }).format(now);
+  const lheStr = new Intl.DateTimeFormat('en-US', { ...options, timeZone: 'Asia/Karachi' }).format(now);
+  
+  if (lonStr !== lastLonStr) {
+    document.getElementById('time-lon').innerText = lonStr;
+    lastLonStr = lonStr;
+  }
+  if (lheStr !== lastLheStr) {
+    document.getElementById('time-lhe').innerText = lheStr;
+    lastLheStr = lheStr;
+  }
 }
-setInterval(updateClocks, 1000);
-updateClocks();
+
+function startClockSync() {
+  updateClocks();
+  const now = new Date();
+  const msUntilNextMinute = 60000 - (now.getSeconds() * 1000 + now.getMilliseconds());
+  setTimeout(startClockSync, msUntilNextMinute);
+}
+startClockSync();
 
 // --- 2. HACKER NEWS TICKER ---
 let hnStories = [];
@@ -83,7 +112,7 @@ function rotateHN() {
   hnIndex = (hnIndex + 1) % hnStories.length;
 }
 fetchHN();
-setInterval(rotateHN, 8000); // Rotate every 8 seconds
+setInterval(rotateHN, 20000); // Rotate every 20 seconds
 setInterval(fetchHN, 1800000); // Fetch fresh news every 30 mins
 
 // --- 3. AMBIENT AUDIO ---
@@ -157,7 +186,7 @@ function renderTasks() {
     const empty = document.createElement('div');
     empty.className = 'empty-state';
     empty.innerHTML = `
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width: 28px; height: 28px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
       <span>All caught up!</span>
     `;
     ul.appendChild(empty);
@@ -314,3 +343,42 @@ window.frenchToggleKnown = function(e) {
 
 // Initialize flashcards
 loadFlashcards();
+
+// --- 8. EXCALIDRAW ---
+window.loadExcalidraw = function() {
+  const placeholder = document.getElementById('excalidraw-placeholder');
+  const wrapper = document.getElementById('excalidraw-frame-wrapper');
+  
+  if (!placeholder || !wrapper) return;
+  
+  placeholder.style.display = 'none';
+  wrapper.style.display = 'block';
+  
+  wrapper.innerHTML = '<iframe src="https://excalidraw.com" style="width: 100%; height: 100%; border: none; border-radius: 24px;"></iframe>';
+
+  // Delay attaching listener so the current click doesn't close it immediately
+  setTimeout(() => {
+    window.addEventListener('click', closeExcalidrawOutsideClick);
+  }, 50);
+};
+
+function closeExcalidrawOutsideClick(e) {
+  const container = document.getElementById('excalidraw-container');
+  // If the click is inside the excalidraw panel, ignore it
+  if (container && container.contains(e.target)) return;
+  window.closeExcalidraw();
+}
+
+window.closeExcalidraw = function() {
+  const placeholder = document.getElementById('excalidraw-placeholder');
+  const wrapper = document.getElementById('excalidraw-frame-wrapper');
+  
+  if (!placeholder || !wrapper) return;
+  
+  // Destroy iframe to free memory
+  wrapper.innerHTML = '';
+  wrapper.style.display = 'none';
+  placeholder.style.display = 'flex';
+  
+  window.removeEventListener('click', closeExcalidrawOutsideClick);
+};

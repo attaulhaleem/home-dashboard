@@ -1,5 +1,5 @@
 :root {
-  --panel-bg: rgba(30, 30, 32, 0.35);
+  --panel-bg: rgba(30, 30, 32, 0.85);
   --panel-border: rgba(255, 255, 255, 0.12);
   --accent: #0a84ff;
   --accent-hover: #007aff;
@@ -15,7 +15,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: var(--font-sans);
-  background-color: transparent;
+  background-color: rgba(0, 0, 0, 0.01);
   color: var(--text-main);
   height: 100vh;
   overflow: hidden;
@@ -35,8 +35,8 @@ button, input, textarea {
   flex-direction: column;
   justify-content: flex-start;
   height: 100%;
-  padding: 40px 0 120px 40px; /* 120px bottom clearance for Dock */
-  width: 620px; /* Constrained so it doesn't hit Apple Widgets */
+  padding: 40px 0 80px 40px; /* 80px bottom padding to clear bezel/dock */
+  width: 620px; /* Restored back to original width */
   gap: 20px;
 }
 
@@ -47,10 +47,6 @@ button, input, textarea {
   border-radius: 24px;
   padding: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(50px) saturate(180%);
-  -webkit-backdrop-filter: blur(50px) saturate(180%);
-  transform: translateZ(0);
-  will-change: transform, backdrop-filter;
 }
 
 .section-title {
@@ -87,12 +83,10 @@ button, input, textarea {
   display: flex;
   align-items: center;
   gap: 7px;
-  background: rgba(255,255,255,0.05);
+  background: rgba(30, 30, 32, 0.85);
   padding: 5px 12px;
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.05);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
 }
 .weather-icon { display: flex; align-items: center; }
 .weather-icon svg { width: 16px; height: 16px; display: block; color: var(--text-muted); }
@@ -325,8 +319,6 @@ button, input, textarea {
 #task-input {
   flex: 1;
   background: var(--panel-bg);
-  backdrop-filter: blur(50px) saturate(180%);
-  -webkit-backdrop-filter: blur(50px) saturate(180%);
   border: 1px solid var(--panel-border);
   border-radius: 12px;
   color: var(--text-main);
@@ -375,8 +367,6 @@ button, input, textarea {
 }
 .task-item {
   background: var(--panel-bg);
-  backdrop-filter: blur(50px) saturate(180%);
-  -webkit-backdrop-filter: blur(50px) saturate(180%);
   border: none;
   border-radius: 12px;
   padding: 12px 14px;
@@ -465,8 +455,6 @@ button, input, textarea {
   flex: 1;
   width: 100%;
   background: var(--panel-bg);
-  backdrop-filter: blur(50px) saturate(180%);
-  -webkit-backdrop-filter: blur(50px) saturate(180%);
   border: 1px solid var(--panel-border);
   border-radius: 24px;
   color: var(--text-main);
